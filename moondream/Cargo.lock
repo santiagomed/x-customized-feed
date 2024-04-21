@@ -239,7 +239,7 @@ checksum = "8f1fe948ff07f4bd06c30984e69f5b4899c516a3ef74f34df92a2df2ab535495"
 [[package]]
 name = "candle-core"
 version = "0.5.0"
-source = "git+https://github.com/huggingface/candle/#0067fe00a8477b8c817dcf54d4d4084b07b7fc5b"
+source = "git+https://github.com/huggingface/candle/#d22f1d4f4ee937fd4e59924e0ca5f15b81ff9d79"
 dependencies = [
  "byteorder",
  "candle-metal-kernels",
@@ -261,7 +261,7 @@ dependencies = [
 [[package]]
 name = "candle-metal-kernels"
 version = "0.5.0"
-source = "git+https://github.com/huggingface/candle/#0067fe00a8477b8c817dcf54d4d4084b07b7fc5b"
+source = "git+https://github.com/huggingface/candle/#d22f1d4f4ee937fd4e59924e0ca5f15b81ff9d79"
 dependencies = [
  "metal",
  "once_cell",
@@ -272,7 +272,7 @@ dependencies = [
 [[package]]
 name = "candle-nn"
 version = "0.5.0"
-source = "git+https://github.com/huggingface/candle/#0067fe00a8477b8c817dcf54d4d4084b07b7fc5b"
+source = "git+https://github.com/huggingface/candle/#d22f1d4f4ee937fd4e59924e0ca5f15b81ff9d79"
 dependencies = [
  "candle-core",
  "candle-metal-kernels",
@@ -288,7 +288,7 @@ dependencies = [
 [[package]]
 name = "candle-transformers"
 version = "0.5.0"
-source = "git+https://github.com/huggingface/candle/#0067fe00a8477b8c817dcf54d4d4084b07b7fc5b"
+source = "git+https://github.com/huggingface/candle/#d22f1d4f4ee937fd4e59924e0ca5f15b81ff9d79"
 dependencies = [
  "byteorder",
  "candle-core",
@@ -1264,6 +1264,7 @@ dependencies = [
  "log",
  "pyo3",
  "pyo3-log",
+ "rand",
  "serde",
  "serde_json",
  "thiserror",

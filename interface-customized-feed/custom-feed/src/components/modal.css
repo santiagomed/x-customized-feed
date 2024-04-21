@@ -1,0 +1,26 @@
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  border: 8px solid rgba(255, 255, 255, 0.3); /* Lighter part of spinner */
+  border-top: 8px solid white; /* Visible part of spinner */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+  margin-top: 20px; /* Space between text and spinner */
+}
+
+.quote {
+  color: white;
+  font-size: 1.5em; /* Larger font size for better visibility */
+  text-align: center; /* Center-align the quote */
+  padding: 20px; /* Padding around text for better spacing */
+  max-width: 80%; /* Maximum width of text block */
+}

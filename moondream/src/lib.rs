@@ -1,11 +1,11 @@
 use pyo3::prelude::*;
-use std::sync::Mutex;
+pub mod logits_processor;
 pub mod pipeline;
 
 #[pyclass]
 #[pyo3(name = "Moondream")]
 struct Pipeline {
-    pipeline: Mutex<pipeline::Pipeline>,
+    pipeline: pipeline::Pipeline,
 }
 
 #[pymethods]
@@ -15,14 +15,14 @@ impl Pipeline {
         let device = candle::Device::new_metal(0).map_err(|e| {
             PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Error: {}", e))
         })?;
-        let pipeline = Mutex::new(pipeline::Pipeline::new(&device).map_err(|e| {
+        let pipeline = pipeline::Pipeline::new(&device).map_err(|e| {
             PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Error: {}", e))
-        })?);
+        })?;
         Ok(Self { pipeline })
     }
 
     fn generate(&self, prompt: &str, img: Vec<u8>) -> PyResult<String> {
-        let mut pipeline = self.pipeline.lock().unwrap();
+        let mut pipeline = self.pipeline.clone();
         pipeline.set_tokens(prompt).map_err(|e| {
             PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Error: {}", e))
         })?;
@@ -34,10 +34,6 @@ impl Pipeline {
                 PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(format!("Error: {}", e))
             })?;
             if generation.generated_text.is_some() {
-                log::info!("Clearing KV cache");
-                pipeline.clear_kv_cache();
-                drop(pipeline);
-                log::info!("Drop pipeline");
                 return Ok(generation.generated_text.unwrap());
             }
         }

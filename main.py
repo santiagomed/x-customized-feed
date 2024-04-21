@@ -1,6 +1,6 @@
 import logging
 from fastapi import FastAPI, Response
-from classifier import Classifier, Tweet, ClassifyRequest
+from classifier import Classifier, ClassifyRequest
 from tweets import TweepyClient
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv

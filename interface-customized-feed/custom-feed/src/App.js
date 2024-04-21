@@ -14,10 +14,24 @@ import { MoreHorizontalIcon } from "./components/icons/MoreHorizontalIcon"
 import { SearchIcon } from "./components/icons/SearchIcon"
 import { TwitterIcon } from "./components/icons/TwitterIcon"
 import { UserIcon } from "./components/icons/UserIcon"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
+import React from "react";
 import MainFeed from "./components/mainfeed"
 
 
 function App() {
+  const [selectedDataSource, setSelectedDataSource] = React.useState('');
+
+  const handleDataSourceChange = (value) => {
+    setSelectedDataSource(value);
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -26,8 +40,9 @@ function App() {
 
       <div className="flex flex-col w-64 px-4 py-2 border-r border-gray-800">
         <div className="flex items-center space-x-2">
+          {/* <span className="font-bold text-xl">Not</span> */}
           <TwitterIcon className="h-5 w-6" />
-          <span className="font-bold text-xl">Home</span>
+          <span className="font-bold text-xl">(ish)</span>
         </div>
         <nav className="mt-4">
           <ul className="space-y-2">
@@ -39,7 +54,7 @@ function App() {
             </li>
             <li>
               <a className="flex items-center space-x-2 group" href="#">
-                <TwitterIcon className="h-6 w-6 group-hover:text-blue-500" />
+                <SearchIcon className="h-6 w-6 group-hover:text-blue-500" />
                 <span className="group-hover:text-blue-500">Explore</span>
               </a>
             </li>
@@ -82,9 +97,20 @@ function App() {
           </ul>
         </nav>
         <Button className="mt-4 bg-blue-500 hover:bg-blue-600">Post</Button>
+        <Select onValueChange={handleDataSourceChange} className="mt-8">
+          <SelectTrigger className="w-[180px] mt-8 border border-zinc-500">
+            <SelectValue placeholder="Data source" />
+          </SelectTrigger>
+          <SelectContent className="border-zinc-500 text-white">
+            <SelectItem key="live" value="live">Live</SelectItem>
+            <SelectItem key="censored" value="censored">Censored</SelectItem>
+            <SelectItem key="violent" value="violent">Violent</SelectItem>
+            <SelectItem key="normal" value="normal">Normal</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      <MainFeed className="main-feed " />
+      <MainFeed dataSource={selectedDataSource} className="main-feed " />
       
       <div className="w-80 px-4 py-2 border-l border-gray-800">
         <div className="flex items-center space-x-2">

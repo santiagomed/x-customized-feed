@@ -1,12 +1,10 @@
 use candle::{DType, Device, Tensor};
 use candle_nn::VarBuilder;
-use candle_transformers::{
-    generation::LogitsProcessor,
-    models::moondream::{Config, Model},
-};
+use candle_transformers::models::moondream::{Config, Model};
 use serde::{Deserialize, Serialize};
-use std::sync::{Arc, Mutex};
 use tokenizers::Tokenizer;
+
+use crate::logits_processor::LogitsProcessor;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -88,24 +86,6 @@ fn get_image_embeddings(img: Vec<u8>, device: &Device) -> Result<Tensor, Error> 
     Ok(image)
 }
 
-// pub fn build_pipeline(
-//     model: Arc<Mutex<Model>>,
-//     tokenizer: Arc<Mutex<Tokenizer>>,
-//     device: &Device,
-// ) -> Result<Pipeline, Error> {
-// let prompt = format!("\n\nQuestion: {}\nAnswer:", prompt.unwrap_or_default());
-// let tokens = tokenizer.lock().unwrap().encode(prompt, true)?;
-// if tokens.is_empty() {
-//     return Err(Error::InputError("Prompt is empty".to_string()));
-// }
-// let tokens = Some(tokens.get_ids().to_vec());
-// let image_embeds = Some(
-//     get_image_embeddings(img.unwrap_or_default(), device)?
-//         .apply(model.lock().unwrap().vision_encoder())?,
-// );
-//     Pipeline::new(model, tokenizer, device)
-// }
-
 pub struct PipelineIter<'a> {
     pipeline: &'a mut Pipeline,
     tokens: Vec<u32>,
@@ -115,10 +95,11 @@ pub struct PipelineIter<'a> {
     i: usize,
 }
 
+#[derive(Debug, Clone)]
 pub struct Pipeline {
-    model: Arc<Mutex<Model>>,
+    model: Model,
     device: Device,
-    tokenizer: Arc<Mutex<Tokenizer>>,
+    tokenizer: Tokenizer,
     logits_processor: LogitsProcessor,
     tokens: Option<Vec<u32>>,
     image_embeds: Option<Tensor>,
@@ -140,8 +121,8 @@ impl Pipeline {
             }
         };
         Ok(Self {
-            model: Arc::new(Mutex::new(model)),
-            tokenizer: Arc::new(Mutex::new(tokenizer)),
+            model,
+            tokenizer,
             logits_processor,
             device: device.clone(),
             tokens: None,
@@ -151,7 +132,8 @@ impl Pipeline {
     }
 
     pub fn set_tokens(&mut self, prompt: &str) -> Result<(), Error> {
-        let tokens = self.tokenizer.lock().unwrap().encode(prompt, true)?;
+        let prompt = format!("\n\nQuestion: {}\nAnswer: ", prompt);
+        let tokens = self.tokenizer.encode(prompt, true)?;
         if tokens.is_empty() {
             return Err(Error::InputError("Prompt is empty".to_string()));
         }
@@ -161,10 +143,8 @@ impl Pipeline {
     }
 
     pub fn set_image_embeds(&mut self, img: Vec<u8>) -> Result<(), Error> {
-        self.image_embeds = Some(
-            get_image_embeddings(img, &self.device)?
-                .apply(self.model.lock().unwrap().vision_encoder())?,
-        );
+        self.image_embeds =
+            Some(get_image_embeddings(img, &self.device)?.apply(self.model.vision_encoder())?);
         Ok(())
     }
 
@@ -187,7 +167,7 @@ impl Pipeline {
     }
 
     pub fn clear_kv_cache(&mut self) {
-        self.model.lock().unwrap().text_model.clear_kv_cache();
+        self.model.text_model.clear_kv_cache();
     }
 }
 
@@ -195,26 +175,21 @@ impl<'a> PipelineIter<'a> {
     fn inner_next(&mut self) -> Result<Generation, Error> {
         let special_token = self.pipeline.special_token;
         let input = Tensor::new(self.tokens.as_slice(), &self.pipeline.device)?.unsqueeze(0)?;
-        let mut model = self.pipeline.model.lock().unwrap();
         let logits = if self.i > 0 {
-            model.text_model.forward(&input)?
+            self.pipeline.model.text_model.forward(&input)?
         } else {
             log::info!("Running first forward pass with image embeds");
             let bos_token = Tensor::new(&[special_token], &self.pipeline.device)?.unsqueeze(0)?;
-            let logits =
-                model
-                    .text_model
-                    .forward_with_img(&bos_token, &input, &self.image_embeds)?;
+            let logits = self.pipeline.model.text_model.forward_with_img(
+                &bos_token,
+                &input,
+                &self.image_embeds,
+            )?;
             logits
         };
         let logits = logits.squeeze(0)?.to_dtype(DType::F16)?;
         let next_token = self.pipeline.logits_processor.sample(&logits)?;
-        let text = self
-            .pipeline
-            .tokenizer
-            .lock()
-            .unwrap()
-            .decode(&[next_token], true)?;
+        let text = self.pipeline.tokenizer.decode(&[next_token], true)?;
         self.generated_tokens.push(next_token);
         self.tokens = vec![next_token];
         let stop = next_token == special_token;
@@ -222,8 +197,6 @@ impl<'a> PipelineIter<'a> {
             Some(
                 self.pipeline
                     .tokenizer
-                    .lock()
-                    .unwrap()
                     .decode(&self.generated_tokens, true)?,
             )
         } else {

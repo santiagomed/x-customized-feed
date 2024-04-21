@@ -1,11 +1,13 @@
 import xai_sdk
 import asyncio
-import requests
+import regex as re
+import aiohttp
+import os
+from groq import Groq as GroqClient
 from pydantic import BaseModel
 from typing import List, Optional
-from prompt import prompt, prompt_with_image
+from prompt import preamble_with_img, preamble_without_img
 from moondream import Moondream
-import regex as re
 
 
 class Image(BaseModel):
@@ -15,8 +17,7 @@ class Image(BaseModel):
 
 
 class Tweet(BaseModel):
-    id: int
-    author_id: int
+    id: str
     text: str
     img: Optional[List[Image]] = None
 
@@ -28,17 +29,34 @@ class ClassifyRequest(BaseModel):
 
 
 class Grok:
-    def __init__(self, fun_mode=False):
+    def __init__(self):
         self.client = xai_sdk.Client()
-        self.fun_mode = fun_mode
 
-    async def send_message(self, message):
-        conversation = self.client.chat.create_conversation(fun_mode=self.fun_mode)
-        if not message:
-            return "No input provided."
+    async def send_message(self, message: str):
+        response = ""
+        async for token in self.client.sampler.sample(
+            message, max_len=3, temperature=0.1
+        ):
+            response += token.token_str
+        return response
 
-        response = await conversation.add_response_no_stream(message)
-        return response.message
+
+class Groq:
+    def __init__(self):
+        self.client = GroqClient(api_key=os.environ.get("GROQ_API_KEY"))
+
+    async def send_message(self, message: str):
+        chat_completion = self.client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": message,
+                }
+            ],
+            model="mixtral-8x7b-32768",
+        )
+
+        return chat_completion.choices[0].message.content
 
 
 class TweetObj(BaseModel):
@@ -46,14 +64,14 @@ class TweetObj(BaseModel):
     img_description: str
 
 
-def open_image_from_url(url):
+async def open_image_from_url(url):
     """
-    Open an image from a URL.
+    Asynchronously open an image from a URL.
     """
-    response = requests.get(url)
-    response.raise_for_status()
-    image = response.content
-    return image
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            response.raise_for_status()
+            return await response.read()
 
 
 class Classifier:
@@ -67,20 +85,18 @@ class Classifier:
         ]
         responses: List[str] = await asyncio.gather(*tasks)
         # remove any punctuation and extra whitespace as well as convert to lowercase
-        responses = [
-            re.sub(r"[^\w\s]", "", response).strip().lower() for response in responses
-        ]
+        responses = [response.strip().lower() for response in responses]
         print(responses)
 
         if request.algorithm == "clean":
             return [
                 tweet.id
                 for tweet, response in zip(request.data, responses)
-                if response == "yes"
+                if "yes" in response
             ]
         elif request.algorithm == "prioritize":
             sorted_responses = sorted(
-                zip(request.data, responses), key=lambda x: x[1] == "no"
+                zip(request.data, responses), key=lambda x: "no" in x[1]
             )
             return [tweet.id for tweet, _ in sorted_responses]
 
@@ -88,19 +104,23 @@ class Classifier:
         text = tweet.text
         input = None
         if tweet.img:
-            image = open_image_from_url(tweet.img[0].url)
-            img_description = self.moondream.generate("Describe this image.", image)
+            image = await open_image_from_url(tweet.img[0].url)
+            # Run Moondream.generate in a separate thread to prevent blocking
+            img_description = await asyncio.to_thread(
+                self.moondream.generate, "Briefly describe this image.", image
+            )
             print(img_description)
             tweet_obj = TweetObj(text=text, img_description=img_description)
-            input = prompt_with_image.format(
+            input = preamble_with_img.format(
                 prompt=system_prompt,
                 text=tweet_obj.text,
                 img_description=tweet_obj.img_description,
             )
             print("Tweet:", input)
         else:
-            input = prompt.format(prompt=system_prompt, text=text)
+            input = preamble_without_img.format(prompt=system_prompt, text=text)
             print("Tweet:", input)
 
         response = await self.grok.send_message(input)
+        print("Response:", response)
         return response

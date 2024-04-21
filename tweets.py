@@ -13,11 +13,6 @@ load_dotenv()
 # CONSUMER_SECRET = getenv("CONSUMER_SECRET")
 # ACCESS_TOKEN = getenv("ACCESS_TOKEN")
 # ACCESS_SECRET = getenv("ACCESS_SECRET")
-# CONSUMER_KEY = "CK0DdMJKmz5OYWC29pcasv9Nb"
-# CONSUMER_SECRET = "xjJD4PawKhIcTUwFqYtksX9GjfkmHMWw1g82BKGLpGJNZs0bFG"
-# ACCESS_TOKEN = "805635117884575744-dREgOUVmuTLnRWFM4PSNwzRKdLEm0Gq"
-# ACCESS_SECRET = "YVtBsqmSR8OBMA74zNQ3jZEqsnjwNb13gI3Ff9D28H2zB"
-
 CONSUMER_KEY = "CK0DdMJKmz5OYWC29pcasv9Nb"
 CONSUMER_SECRET = "xjJD4PawKhIcTUwFqYtksX9GjfkmHMWw1g82BKGLpGJNZs0bFG"
 ACCESS_TOKEN = "805635117884575744-dREgOUVmuTLnRWFM4PSNwzRKdLEm0Gq"
@@ -28,7 +23,7 @@ class TweepyClient:
 
     async def get_tweets(self, id):
 
-        base_url = "https://api.twitter.com/2/users/805635117884575744/timelines/reverse_chronological?exclude=retweets,replies&expansions=attachments.media_keys,author_id&media.fields=preview_image_url,url&user.fields=name,username,profile_image_url&tweet.fields=attachments"
+        base_url = "https://api.twitter.com/2/users/805635117884575744/timelines/reverse_chronological?exclude=retweets,replies&expansions=attachments.media_keys,author_id&media.fields=preview_image_url,url&user.fields=name,username,profile_image_url&tweet.fields=attachments,created_at,public_metrics&max_results=12"
 
         oauth = OAuth1(
             client_key=CONSUMER_KEY,
@@ -37,6 +32,8 @@ class TweepyClient:
             resource_owner_secret=ACCESS_SECRET,
         )
 
-        response = requests.get(base_url, auth=oauth)
+        headers = {"X-B3-Flags": "1"}
+
+        response = requests.get(base_url, auth=oauth, headers=headers)
 
         return response.json()

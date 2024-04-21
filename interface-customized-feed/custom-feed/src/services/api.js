@@ -27,11 +27,20 @@ const postAlgorithmData = async (systemPrompt, algorithmChoice, tweetData) => {
   }
 };
 
+const fetchStaticTweets = async (source) => {
+  const response = await fetch(`/static/${source}.json`)
+  console.log('response', response);
+  const res = await response.json();
+  console.log('retrieved', res)
+  return res
+}
+
 const fetchTweets = async () => {
   try {
     const response = await axios.get('/get_tweets', {
     params: {
       id: 805635117884575744
+      // id: 1215441834412953600
     }
     });
 
@@ -41,4 +50,4 @@ const fetchTweets = async () => {
     console.error('Error fetching data:', error);
   }
 }
-export { postAlgorithmData, fetchTweets };
+export { postAlgorithmData, fetchTweets, fetchStaticTweets };
