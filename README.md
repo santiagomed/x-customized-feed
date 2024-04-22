@@ -1,4 +1,7 @@
 # X Dynamic Feed Filtering 
+
+![](./assets/XDemo.gif)
+
 This is the repository for the Dynamic Feed Filtering X Developer Challenge project. This app spins up a mock X UI and calls a feed API to display a list of items.
 
 The user can filter the feed clocking on the gear icon. This will open a modal where the user can use natural language to filter the feed. This filtering functionality provides two algorithms: "clean" and "prioritize". "Clean" removes any items that do not match the filter, while "prioritize" moves any items that do not match the filter to the bottom of the feed.
@@ -20,3 +23,11 @@ To start the server `cd` to the root directory and run:
 ```bash
 $ uvicorn server.main:app --reload
 ```
+
+The following environemnt variables are required to successfully run the demo:
+
+XAI_API_KEY\
+CONSUMER_KEY\
+CONSUMER_SECRET\
+ACCESS_TOKEN\
+ACCESS_SECRET
