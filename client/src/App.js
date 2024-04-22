@@ -47,49 +47,49 @@ function App() {
         <nav className="mt-4">
           <ul className="space-y-2">
             <li>
-              <a className="flex items-center space-x-2 group" href="#">
+              <a className="flex items-center space-x-2 group" href="/">
                 <HomeIcon className="h-6 w-6 group-hover:text-blue-500" />
                 <span className="group-hover:text-blue-500">Home</span>
               </a>
             </li>
             <li>
-              <a className="flex items-center space-x-2 group" href="#">
+              <a className="flex items-center space-x-2 group" href="/">
                 <SearchIcon className="h-6 w-6 group-hover:text-blue-500" />
                 <span className="group-hover:text-blue-500">Explore</span>
               </a>
             </li>
             <li>
-              <a className="flex items-center space-x-2 group" href="#">
+              <a className="flex items-center space-x-2 group" href="/">
                 <BellIcon className="h-6 w-6 group-hover:text-blue-500" />
                 <span className="group-hover:text-blue-500">Notifications</span>
               </a>
             </li>
             <li>
-              <a className="flex items-center space-x-2 group" href="#">
+              <a className="flex items-center space-x-2 group" href="/">
                 <MailboxIcon className="h-6 w-6 group-hover:text-blue-500" />
                 <span className="group-hover:text-blue-500">Messages</span>
               </a>
             </li>
             <li>
-              <a className="flex items-center space-x-2 group" href="#">
+              <a className="flex items-center space-x-2 group" href="/">
                 <BookmarkIcon className="h-6 w-6 group-hover:text-blue-500" />
                 <span className="group-hover:text-blue-500">Bookmarks</span>
               </a>
             </li>
             <li>
-              <a className="flex items-center space-x-2 group" href="#">
+              <a className="flex items-center space-x-2 group" href="/">
                 <ListIcon className="h-6 w-6 group-hover:text-blue-500" />
                 <span className="group-hover:text-blue-500">Lists</span>
               </a>
             </li>
             <li>
-              <a className="flex items-center space-x-2 group" href="#">
+              <a className="flex items-center space-x-2 group" href="/">
                 <UserIcon className="h-6 w-6 group-hover:text-blue-500" />
                 <span className="group-hover:text-blue-500">Profile</span>
               </a>
             </li>
             <li>
-              <a className="flex items-center space-x-2 group" href="#">
+              <a className="flex items-center space-x-2 group" href="/">
                 <MoreHorizontalIcon className="h-6 w-6 group-hover:text-blue-500" />
                 <span className="group-hover:text-blue-500">More</span>
               </a>

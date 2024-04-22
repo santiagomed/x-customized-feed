@@ -9,7 +9,6 @@ import { UploadIcon } from "./icons/UploadIcon";
 import { fetchTweets, fetchStaticTweets } from "../services/api";
 import React from "react";
 import Modal from "./modal";
-import axios from "axios";
 
 export default function MainFeed({ dataSource }) {
   const [tweetIDs, setTweetIDs] = React.useState([]);

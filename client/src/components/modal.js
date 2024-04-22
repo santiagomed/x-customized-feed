@@ -128,28 +128,3 @@ const Modal = ({ isOpen, close, onIDsReceived, posts }) => {
 };
 
 export default Modal;
-
-
-
-  // const generateFakeTweetData = () => {
-  //   const tweetData = [
-  //     {
-  //       id: 1,
-  //       author_id: 101,
-  //       text: "I love the US Army",
-  //       img: [
-  //         { url: "https://pbs.twimg.com/media/GLmtammakAAt9b3?format=jpg&name=large", width: 800, height: 600 },
-  //       ]
-  //     },
-  //     {
-  //       id: 2,
-  //       author_id: 102,
-  //       text: "I love war. america,and guns",
-  //       img: [
-  //         { url: "https://pbs.twimg.com/media/GLoR593boAAsVEL?format=jpg&name=900x900", width: 1000, height: 800 }
-  //       ]
-  //     },
-  //   ];
-  
-  //   return tweetData;
-  // };

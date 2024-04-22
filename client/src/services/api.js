@@ -1,8 +1,4 @@
 import axios from 'axios';
-import oauth from 'oauth-1.0a';
-import CryptoJS from 'crypto-js';
-
-
 
 axios.defaults.baseURL = "http://localhost:8000";
 

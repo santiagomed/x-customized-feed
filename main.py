@@ -61,7 +61,7 @@ async def get_tweets(id: int, response: Response):
         print("Received request")
         # call twitter api to get timeline for user
         tweetsClient = TweepyClient()
-        res = await tweetsClient.get_tweets(id)
+        res = tweetsClient.get_tweets(id)
         print(res)
         return res
 

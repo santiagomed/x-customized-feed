@@ -1,6 +1,5 @@
 import xai_sdk
 import asyncio
-import regex as re
 import aiohttp
 import os
 from groq import Groq as GroqClient
