@@ -106,6 +106,7 @@ function App() {
             <SelectItem key="censored" value="censored">Censored</SelectItem>
             <SelectItem key="violent" value="violent">Violent</SelectItem>
             <SelectItem key="normal" value="normal">Normal</SelectItem>
+            <SelectItem key="techbro" value="techbro">TechBro</SelectItem>
           </SelectContent>
         </Select>
       </div>

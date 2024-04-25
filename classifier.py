@@ -3,6 +3,7 @@ import asyncio
 import aiohttp
 import os
 from groq import Groq as GroqClient
+from openai import OpenAI
 from pydantic import BaseModel
 from typing import List, Optional
 from prompt import preamble_with_img, preamble_without_img
@@ -53,6 +54,23 @@ class Groq:
                 }
             ],
             model="mixtral-8x7b-32768",
+        )
+
+        return chat_completion.choices[0].message.content
+    
+class OpenAIClient:
+    def __init__(self):
+        self.client = OpenAI()
+
+    async def send_message(self, message: str):
+        chat_completion = self.client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": message,
+                }
+            ],
+            model="gpt-3.5-turbo",
         )
 
         return chat_completion.choices[0].message.content
